@@ -1,0 +1,17 @@
+{
+    "name": "Kokowolo.Pathfinding",
+    "rootNamespace": "Kokowolo.Pathfinding",
+    "references": [
+        "GUID:4eb9837719b274e77b9992f90890523c",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
