@@ -87,6 +87,7 @@ namespace Kokowolo.Pathfinding
             neighbors = ListPool.Get<Node>();
         }
 
+        // HACK: this is so PathfindingVisual can create duplicate nodes with independent Distance values; can this be cleaned up?
         public Node(Node node)
         {
             Object = node.Object;
@@ -102,6 +103,11 @@ namespace Kokowolo.Pathfinding
         ~Node()
         {
             ListPool.Release(neighbors);
+        }
+
+        public void ClearNeighbors()
+        {
+            neighbors.Clear();
         }
 
         public List<Node> GetNeighbors(bool includeOnlyExplorable = true)

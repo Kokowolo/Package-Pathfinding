@@ -32,7 +32,6 @@ namespace Kokowolo.Pathfinding
 
         public class AStarPathfindingEventArgs
         {
-            public int searchFrontierPhase;
             public Node node;
         }
 
@@ -40,7 +39,6 @@ namespace Kokowolo.Pathfinding
         /************************************************************/
         #region Fields
 
-        private static int searchFrontierPhase;
         private static NodePriorityQueue searchFrontier;
         
         private static NodePath searchPath = new NodePath();
@@ -50,6 +48,8 @@ namespace Kokowolo.Pathfinding
         #endregion
         /************************************************************/
         #region Properties
+
+        public static int SearchFrontierPhase { get; private set; }
 
         #endregion
         /************************************************************/
@@ -96,14 +96,14 @@ namespace Kokowolo.Pathfinding
         {
             OnStartSearch?.Invoke(null, EventArgs.Empty);
 
-            searchFrontierPhase += 2; // initialize new search frontier phase
+            SearchFrontierPhase += 2; // initialize new search frontier phase
 
             // initialize the search priority queue
             if (searchFrontier == null) searchFrontier = new NodePriorityQueue();
             else searchFrontier.Clear();
 
             // add the starting node to the queue
-            SetNode(node: start, searchPhase: searchFrontierPhase, distance: 0, pathFrom: null);
+            SetNode(node: start, searchPhase: SearchFrontierPhase, distance: 0, pathFrom: null);
             searchFrontier.Enqueue(start);
 
             // as long as there is something in the queue, keep searching
@@ -134,9 +134,9 @@ namespace Kokowolo.Pathfinding
                         int distance = current.Distance + moveCost;
 
                         // adding a new node that hasn't been updated
-                        if (neighbor.SearchPhase < searchFrontierPhase)
+                        if (neighbor.SearchPhase < SearchFrontierPhase)
                         {
-                            SetNode(node: neighbor, searchPhase: searchFrontierPhase, distance, pathFrom: current);
+                            SetNode(node: neighbor, searchPhase: SearchFrontierPhase, distance, pathFrom: current);
 
                             // because our lowest distance cost is 1, heuristic is just the DistanceTo()
                             neighbor.SearchHeuristic = 0;//neighbor.Coordinates.DistanceTo(end.Coordinates);
@@ -163,7 +163,6 @@ namespace Kokowolo.Pathfinding
             node.Distance = distance;
             node.PathFrom = pathFrom;
 
-            e.searchFrontierPhase = searchFrontierPhase;
             e.node = node;
             OnSetNode?.Invoke(null, e);
         }
@@ -181,7 +180,7 @@ namespace Kokowolo.Pathfinding
         private static bool IsValidMoveBetweenNodes(IPathfinding pathfinder, Node start, Node end)
         {
             // invalid if end is null or if the node is already out of the queue
-            if (end.SearchPhase > searchFrontierPhase) return false;
+            if (end.SearchPhase > SearchFrontierPhase) return false;
 
             return pathfinder.IsValidMoveBetweenNodes(start, end);
         }

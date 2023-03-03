@@ -39,25 +39,21 @@ namespace Kokowolo.Pathfinding
         /************************************************************/
         #region Functions
 
-        public void Initialize(string title, string subtitle, Node node, Vector3 position, float scale) 
+        public void Initialize(Node node, string title, string subtitle,  float scale) 
         {
+            Node = node;
+
             name = $"Debug Node {title}";
             titleText.text = title;
             subtitleText.text = subtitle;
-            Node = node;
-            transform.position = position;
             transform.localScale *= scale;
-
-            RefreshGridCellData();
         }
 
-        public void RefreshGridCellData()
+        public void Refresh(Vector3 position, int searchFrontierPhase)
         {
+            transform.position = position;
             gameObject.SetActive(Node.IsExplorable);
-        }
-
-        public void RefreshPathfindingNodeData(int searchFrontierPhase)
-        {
+            
             SetTextColor(GetPathfindingColor(searchFrontierPhase));        
         
             if (Node.SearchPhase < searchFrontierPhase)
