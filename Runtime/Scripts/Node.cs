@@ -139,7 +139,7 @@ namespace Kokowolo.Pathfinding
 
         public override string ToString()
         {
-            return base.ToString();
+            return $"({Distance}) {Object}";
         }
 
         #endregion
