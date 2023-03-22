@@ -72,7 +72,7 @@ namespace Kokowolo.Pathfinding
             }
             else if (pathfinder.IsValidMoveBetweenNodes(path.End, target))
             {
-                path.Add(target);
+                path.Add(target, pathfinder.GetMoveCostBetweenNodes(path.End, target));
                 return !TryTrimPath(pathfinder, ref path);
             }
             else

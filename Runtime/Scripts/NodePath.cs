@@ -29,6 +29,7 @@ namespace Kokowolo.Pathfinding
         #region Fields
 
         [SerializeField] private List<Node> list = ListPool.Get<Node>();
+        [SerializeField] private List<int> distances = ListPool.Get<int>();
 
         #endregion
         /************************************************************/
@@ -56,57 +57,55 @@ namespace Kokowolo.Pathfinding
         ~NodePath()
         {
             ListPool.Release(list);
+            ListPool.Release(distances);
         }
 
         public void Clear()
         {
-            Distance = 0;
             list.Clear();
+            distances.Clear();
+            Distance = 0;
         }
 
-        public void Copy(List<Node> list)
+        internal void Copy(List<Node> list)
         {
             Clear();
-            foreach (Node node in list) Add(node);
-            Distance = End == null ? int.MaxValue : End.Distance;
+            if (list.Count > 0) Add(list[0], 0);
+
+            for (int i = 1; i < list.Count; i++)
+            {
+                int distance = list[i].Distance - list[i - 1].Distance;
+                Add(list[i], distance);
+            }
         }
 
         public void Copy(NodePath path)
         {
-            Copy(path.list);
+            Clear();
+            for (int i = 0; i < path.Length; i++)
+            {
+                Add(path[i], path.distances[i]);
+            }
         }
 
-        public void Add(Node node)
+        internal void Add(Node node, int distance)
         {
-            Distance = node.Distance;
+            Distance += distance;
+            distances.Add(distance);
             list.Add(node);
         }
 
-        // public void Remove(PathfindingNode node)
-        // {
-        //     list.Remove(node);
-        // }
-        // FIXME: [LUTRO-292] Add PathfindingNodePath Distance Tracking - removed function
-
         public void RemoveAt(int index)
         {
+            Distance -= distances[index]; 
+            distances.RemoveAt(index);
             list.RemoveAt(index);
-            Distance = End.Distance; 
-            // FIXME: [LUTRO-292] Add PathfindingNodePath Distance Tracking - this isn't correct because a node's distance could change when RemoveAt is called
         }
 
         public bool Contains(Node node)
         {
             return list.Contains(node);
         }
-
-        // public void Shift(GridDirection direction)
-        // {
-        //     for (int i = 0; i < coordinatesList.Count; i++)
-        //     {
-        //         coordinatesList[i] = coordinatesList[i].GetCoordinatesInDirection(direction);
-        //     }
-        // }
 
         public IEnumerator<Node> GetEnumerator()
         {
