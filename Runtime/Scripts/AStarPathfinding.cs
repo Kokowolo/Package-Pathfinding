@@ -42,6 +42,7 @@ namespace Kokowolo.Pathfinding
         private static NodePriorityQueue searchFrontier;
         
         private static NodePath searchPath = new NodePath();
+        private static List<Node> searchedNodes = new List<Node>();
 
         private static AStarPathfindingEventArgs e = new AStarPathfindingEventArgs();
 
@@ -55,7 +56,7 @@ namespace Kokowolo.Pathfinding
         /************************************************************/
         #region Functions
 
-        public static bool TryAddNodeToPath(IPathfinding pathfinder, Node target, ref NodePath path)
+        public static bool TryAddNodeToPath(IPathfinding pathfinder, Node target, NodePath path)
         {
             if (!path.IsValid) return false;
 
@@ -73,7 +74,7 @@ namespace Kokowolo.Pathfinding
             else if (pathfinder.IsValidMoveBetweenNodes(path.End, target))
             {
                 path.Add(target, pathfinder.GetMoveCostBetweenNodes(path.End, target));
-                return !TryTrimPath(pathfinder, ref path);
+                return !TryTrimPath(pathfinder, path);
             }
             else
             {
@@ -81,7 +82,7 @@ namespace Kokowolo.Pathfinding
             }
         }
 
-        public static bool TryTrimPath(IPathfinding pathfinder, ref NodePath path)
+        public static bool TryTrimPath(IPathfinding pathfinder, NodePath path)
         {
             bool trimmed = false;
             while (path.IsValid && pathfinder.IsPathTrimmable(path))
@@ -92,15 +93,16 @@ namespace Kokowolo.Pathfinding
             return trimmed;
         }
 
-        public static NodePath Search(IPathfinding pathfinder, Node start, Node end)
+        public static NodePath GetPath(IPathfinding pathfinder, Node start, Node end, int maxDistance = int.MaxValue)
         {
             OnStartSearch?.Invoke(null, EventArgs.Empty);
 
             SearchFrontierPhase += 2; // initialize new search frontier phase
 
-            // initialize the search priority queue
+            // initialize the search priority queue and searched nodes list
             if (searchFrontier == null) searchFrontier = new NodePriorityQueue();
             else searchFrontier.Clear();
+            searchedNodes.Clear();
 
             // add the starting node to the queue
             SetNode(node: start, searchPhase: SearchFrontierPhase, distance: 0, pathFrom: null);
@@ -112,6 +114,7 @@ namespace Kokowolo.Pathfinding
                 // pop current node 
                 Node current = searchFrontier.Dequeue();
                 SetNode(current, current.SearchPhase + 1, current.Distance, current.PathFrom);
+                searchedNodes.Add(current);
 
                 // check if we've found the target node
                 if (current == end) 
@@ -138,11 +141,14 @@ namespace Kokowolo.Pathfinding
                         {
                             SetNode(node: neighbor, searchPhase: SearchFrontierPhase, distance, pathFrom: current);
 
-                            // because our lowest distance cost is 1, heuristic is just the DistanceTo()
-                            neighbor.SearchHeuristic = 0;//neighbor.Coordinates.DistanceTo(end.Coordinates);
-                            // FIXME: [LUTRO-265] Fix Search Heuristic - 0 was slapped on as a temporary fix
-
-                            searchFrontier.Enqueue(neighbor);
+                            if (distance <= maxDistance)
+                            {
+                                // 3.3 Admissible Heuristic https://catlikecoding.com/unity/tutorials/hex-map/part-16/
+                                if (end == null) neighbor.SearchHeuristic = 0; // searches everything
+                                else neighbor.SearchHeuristic = pathfinder.GetDistanceBetweenNodes(neighbor, end);
+                                
+                                searchFrontier.Enqueue(neighbor);
+                            }
                         }
                         else if (distance < neighbor.Distance) // adjusting node that's already in queue
                         {
@@ -154,6 +160,21 @@ namespace Kokowolo.Pathfinding
                 }
             }
             searchPath.Clear(); // TODO: break when found and clear this at the beginning
+            return searchPath;
+        }
+
+        public static List<Node> GetAllSearchedNodes(IPathfinding pathfinder, Node start, int maxDistance)
+        {
+            GetPath(pathfinder, start, null, maxDistance);
+            return searchedNodes;
+        }
+
+        /// <summary>
+        /// this is to specifically be called after GetAllSearchedNodes to avoid having to search again
+        /// </summary>
+        public static NodePath GetPreexistingPath(Node start, Node end)
+        {
+            SetSearchPath(start, end);
             return searchPath;
         }
 

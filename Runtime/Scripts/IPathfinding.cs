@@ -28,6 +28,8 @@ namespace Kokowolo.Pathfinding
 
         public bool IsValidMoveBetweenNodes(Node start, Node end);
 
+        public int GetDistanceBetweenNodes(Node start, Node end);
+
         public int GetMoveCostBetweenNodes(Node start, Node end);
 
         public bool IsPathTrimmable(NodePath path);

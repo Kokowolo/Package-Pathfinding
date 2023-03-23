@@ -4,9 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.5] - 2023-03-23
+### Added
+* `GetAllSearchedNodes` and `GetPreexistingPath` to `AStarPathfinding` which allow for grabbing all navigable nodes
+* `GetDistanceBetweenNodes` to `IPathfinding` to properly query for the search's heuristic
+### Changed
+* `AStarPathfinding`.`Search` to `GetPath`
+### Fixed
+* incorrect search heuristic of 0 back to a correct value utilizing `GetDistanceBetweenNodes`
+
 ## [0.0.4] - 2023-03-22
 ### Changed
-* `NodePath`.`Copy(List<Node>)` to `internal` since its functionality isn't obvious
+* `NodePath`'s `Copy(List<Node>)` and `Add(Node, int distance)` to `internal` since its functionality isn't obvious
 ### Fixed
 * `NodePath`'s incorrect distance calculation
 

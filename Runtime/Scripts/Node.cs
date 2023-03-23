@@ -73,7 +73,7 @@ namespace Kokowolo.Pathfinding
 
         /// <summary>
         /// tracker of which phase of the search a tile is in; either not yet in the frontier [0], currently part of the 
-        /// frontier [1], or behind the frontier 2
+        /// frontier [1], or behind the frontier [2]
         /// </summary>
         public int SearchPhase { get; set; }
 
