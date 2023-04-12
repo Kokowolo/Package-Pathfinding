@@ -1,6 +1,6 @@
 {
   "name": "com.kokowolo.pathfinding",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "displayName": "Kokowolo Pathfinding",
   "description": "Pathfinding seen throughout Kokowolo Projects",
   "unity": "2019.1",

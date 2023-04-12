@@ -102,7 +102,7 @@ namespace Kokowolo.Pathfinding
 
         ~Node()
         {
-            ListPool.Release(neighbors);
+            ListPool.Add(neighbors);
         }
 
         public void ClearNeighbors()

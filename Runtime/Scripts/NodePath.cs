@@ -56,8 +56,8 @@ namespace Kokowolo.Pathfinding
 
         ~NodePath()
         {
-            ListPool.Release(list);
-            ListPool.Release(distances);
+            ListPool.Add(list);
+            ListPool.Add(distances);
         }
 
         public void Clear()
