@@ -24,13 +24,13 @@ namespace Kokowolo.Pathfinding
         /************************************************************/
         #region Fields
 
-        [NonSerialized] private List<Node> neighbors;
+        [NonSerialized] protected List<Node> neighbors;
 
         #endregion
         /************************************************************/
         #region Properties
 
-        public object Object { get; private set; }
+        public object Instance { get; private set; }
 
         /// <summary>
         /// can this node be explored (visited)
@@ -40,7 +40,7 @@ namespace Kokowolo.Pathfinding
         /// <summary>
         /// can this node be visited currently
         /// </summary>
-        public bool IsWalkable { get; set; } = true;
+        public bool IsVisitable { get; set; } = true;
 
         /// <summary>
         /// (G cost) property used for tracking a tile's distance from a source tile
@@ -81,16 +81,16 @@ namespace Kokowolo.Pathfinding
         /************************************************************/
         #region Functions
 
-        public Node(object obj)
-        {
-            Object = obj;   
+        public Node(object instance)
+        { 
+            Instance = instance;
             neighbors = ListPool.Get<Node>();
         }
 
         // HACK: this is so PathfindingVisual can create duplicate nodes with independent Distance values; can this be cleaned up?
         public Node(Node node)
         {
-            Object = node.Object;
+            Instance = node.Instance;
             neighbors = ListPool.Get<Node>(node.neighbors);
             IsExplorable = node.IsExplorable;
             Distance = node.Distance;
@@ -110,16 +110,41 @@ namespace Kokowolo.Pathfinding
             neighbors.Clear();
         }
 
-        public List<Node> GetNeighbors(bool includeOnlyExplorable = true)
+        public Node GetNeighbor(int index, bool ensureIsExplorable = true)
+        {
+            if (neighbors.Count <= index || neighbors[index] == null) return null;
+            if (ensureIsExplorable && !neighbors[index].IsExplorable) return null;
+            return neighbors[index];
+        }
+
+        public List<Node> GetNeighbors(bool ensureIsExplorable = true)
         {
             List<Node> nodes = ListPool.Get<Node>();
             foreach (Node neighbor in neighbors)
             {
-                // if (neighbor == null) continue;
-                if (includeOnlyExplorable && !neighbor.IsExplorable) continue;
+                if (neighbor == null) continue;
+                if (ensureIsExplorable && !neighbor.IsExplorable) continue;
                 nodes.Add(neighbor);
             }
             return nodes;
+        }
+
+        public List<T> GetNeighbors<T>(bool ensureIsExplorable = true)
+        {
+            List<T> nodes = ListPool.Get<T>();
+            foreach (Node neighbor in neighbors)
+            {
+                if (neighbor == null) continue;
+                if (ensureIsExplorable && !neighbor.IsExplorable) continue;
+                nodes.Add((T)neighbor.Instance);
+            }
+            return nodes;
+        }
+
+        public bool HasNeighbor(int index)
+        {
+            if (neighbors.Count <= index) return false;
+            return neighbors[index] != null;
         }
 
         public bool HasNeighbor(Node node)
@@ -131,15 +156,31 @@ namespace Kokowolo.Pathfinding
             return false;
         }
 
+        public void SetNeighbor(int index, Node node)
+        {
+            while (neighbors.Count <= index)
+            {
+                neighbors.Add(null);
+            }
+            neighbors[index] = node;
+        }
+
         public void AddNeighbor(Node node)
         {
-            if (neighbors.Contains(node)) return;
+            for (int i = 0; i < neighbors.Count; i++)
+            {
+                if (neighbors[i] == null) 
+                {
+                    neighbors[i] = node;
+                    return;
+                }
+            }
             neighbors.Add(node);
         }
 
         public override string ToString()
         {
-            return $"({Distance}) {Object}";
+            return $"({Distance}) {Instance}";
         }
 
         #endregion

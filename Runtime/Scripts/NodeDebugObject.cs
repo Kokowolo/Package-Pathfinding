@@ -81,7 +81,7 @@ namespace Kokowolo.Pathfinding
 
         private Color GetPathfindingColor(int searchFrontierPhase)
         {
-            if (!Node.IsWalkable) 
+            if (!Node.IsVisitable) 
             {
                 return Color.red;
             }

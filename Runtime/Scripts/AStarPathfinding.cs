@@ -128,7 +128,7 @@ namespace Kokowolo.Pathfinding
                 foreach (Node neighbor in neighbors)
                 {
                     // check if the neighbors are valid nodes to search
-                    if (IsValidMoveBetweenNodes(pathfinder, start, neighbor))
+                    if (IsValidMoveBetweenNodes(pathfinder, current, neighbor))
                     {
                         // if they are valid, calculate distance and add them to the queue
                         int moveCost = pathfinder.GetMoveCostBetweenNodes(current, neighbor);
