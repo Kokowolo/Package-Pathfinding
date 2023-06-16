@@ -6,7 +6,7 @@
  * Date Created: February 13, 2023
  * 
  * Additional Comments:
- *		File Line Length: 120
+ *      File Line Length: 120
  */
 
 using System.Collections;
@@ -28,8 +28,8 @@ namespace Kokowolo.Pathfinding
         /************************************************************/
         #region Fields
 
-        [SerializeField] private List<Node> list = ListPool.Get<Node>();
-        [SerializeField] private List<int> distances = ListPool.Get<int>();
+        [SerializeField] private List<Node> list;
+        [SerializeField] private List<int> distances;
 
         #endregion
         /************************************************************/
@@ -53,6 +53,12 @@ namespace Kokowolo.Pathfinding
         #endregion
         /************************************************************/
         #region Functions
+
+        public NodePath()
+        {
+            list = ListPool.Get<Node>();
+            distances = ListPool.Get<int>();
+        }
 
         ~NodePath()
         {
