@@ -6,7 +6,7 @@
  * Date Created: February 14, 2023
  * 
  * Additional Comments:
- *		File Line Length: 120
+ *      File Line Length: 120
  */
 
 using System.Collections;
@@ -19,6 +19,8 @@ namespace Kokowolo.Pathfinding
     {
         /************************************************************/
         #region Properties
+
+        public bool CanRepeatNodesInPath { get; }
 
         #endregion
         /************************************************************/

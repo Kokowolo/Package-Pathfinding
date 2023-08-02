@@ -10,7 +10,7 @@
  *      https://catlikecoding.com/unity/tutorials/hex-map/ within Catlike Coding's tutorial series:
  *      Hex Map; this file has been updated it to better fit this project
  *
- *		File Line Length: 120
+ *      File Line Length: 120
  **/
 
 using System.Collections;
@@ -67,13 +67,21 @@ namespace Kokowolo.Pathfinding
                 path.RemoveAt(path.Length - 1);
                 return path.IsValid;
             }
-            else if (path.Contains(target))
+            else if (!pathfinder.CanRepeatNodesInPath && path.Contains(target))
             {
                 return false;
             }
             else if (pathfinder.IsValidMoveBetweenNodes(path.End, target))
             {
+                // store End.PathFrom within Start.PathFrom (currently unused)
+                path.Start.PathFrom = path.End.PathFrom;
+
+                path.End.PathFrom = path.Penultimate;
                 path.Add(target, pathfinder.GetMoveCostBetweenNodes(path.End, target));
+
+                // return original End.PathFrom value
+                path.End.PathFrom = path.Start.PathFrom;
+
                 return !TryTrimPath(pathfinder, path);
             }
             else
@@ -182,6 +190,7 @@ namespace Kokowolo.Pathfinding
         {
             node.SearchPhase = searchPhase;
             node.Distance = distance;
+            // node.MoveCost = pathFrom != null ? distance - pathFrom.Distance : distance;
             node.PathFrom = pathFrom;
 
             e.node = node;
