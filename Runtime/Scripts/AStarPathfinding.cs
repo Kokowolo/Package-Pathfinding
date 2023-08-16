@@ -65,24 +65,23 @@ namespace Kokowolo.Pathfinding
             if (path.Penultimate == target)
             {
                 path.RemoveAt(path.Length - 1);
-                return path.IsValid;
+                return path.IsValid && !pathfinder.IsPathOutsideMovementRange(path);
             }
-            else if (!pathfinder.CanRepeatNodesInPath && path.Contains(target))
+            else if (!pathfinder.CanCreatePathsWithRepeatNodes && path.Contains(target))
             {
-                return false;
+                // FIXME: no option exists that allows for a unit to go back and forth on two nodes because the Penultimate is removed
+                return false; 
             }
             else if (pathfinder.IsValidMoveBetweenNodes(path.End, target))
             {
-                // store End.PathFrom within Start.PathFrom (currently unused)
-                path.Start.PathFrom = path.End.PathFrom;
-
+                // Is Move Cost Too Much?
+                path.Start.PathFrom = path.End.PathFrom; // stores End.PathFrom within Start.PathFrom (currently unused)
                 path.End.PathFrom = path.Penultimate;
                 path.Add(target, pathfinder.GetMoveCostBetweenNodes(path.End, target));
+                path.End.PathFrom = path.Start.PathFrom; // returns original End.PathFrom value
 
-                // return original End.PathFrom value
-                path.End.PathFrom = path.Start.PathFrom;
-
-                return !TryTrimPath(pathfinder, path);
+                // Make Sure Path Hasn't Gotten Too Long
+                return !pathfinder.IsPathOutsideMovementRange(path);
             }
             else
             {
@@ -90,15 +89,15 @@ namespace Kokowolo.Pathfinding
             }
         }
 
-        public static bool TryTrimPath(IPathfinding pathfinder, NodePath path)
+        public static bool TryReduceOutsideMovementRangePath(IPathfinding pathfinder, NodePath path)
         {
-            bool trimmed = false;
-            while (path.IsValid && pathfinder.IsPathTrimmable(path))
+            bool hasReduced = false;
+            while (path.IsValid && pathfinder.IsPathOutsideMovementRange(path))
             {
                 path.RemoveAt(path.Length - 1);
-                trimmed = true;
+                hasReduced = true;
             }
-            return trimmed;
+            return hasReduced;
         }
 
         public static NodePath GetPath(IPathfinding pathfinder, Node start, Node end, int maxDistance = int.MaxValue)

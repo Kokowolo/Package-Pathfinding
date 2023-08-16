@@ -20,7 +20,7 @@ namespace Kokowolo.Pathfinding
         /************************************************************/
         #region Properties
 
-        public bool CanRepeatNodesInPath { get; }
+        public bool CanCreatePathsWithRepeatNodes { get; }
 
         #endregion
         /************************************************************/
@@ -34,7 +34,7 @@ namespace Kokowolo.Pathfinding
 
         public int GetMoveCostBetweenNodes(Node start, Node end);
 
-        public bool IsPathTrimmable(NodePath path);
+        public bool IsPathOutsideMovementRange(NodePath path);
 
         // TODO: add burst or jobs to project
         // internal void OnSearchComplete(PathfindingNodePath path);
