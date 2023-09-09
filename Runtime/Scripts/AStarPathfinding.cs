@@ -146,10 +146,10 @@ namespace Kokowolo.Pathfinding
                         // adding a new node that hasn't been updated
                         if (neighbor.SearchPhase < SearchFrontierPhase)
                         {
-                            SetNode(node: neighbor, searchPhase: SearchFrontierPhase, distance, pathFrom: current);
-
                             if (distance <= maxDistance)
                             {
+                                SetNode(node: neighbor, searchPhase: SearchFrontierPhase, distance, pathFrom: current);
+                                
                                 // 3.3 Admissible Heuristic https://catlikecoding.com/unity/tutorials/hex-map/part-16/
                                 if (end == null) neighbor.SearchHeuristic = 0; // searches everything
                                 else neighbor.SearchHeuristic = pathfinder.GetDistanceBetweenNodes(neighbor, end);
