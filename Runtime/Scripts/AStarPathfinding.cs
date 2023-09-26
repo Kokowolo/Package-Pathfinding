@@ -135,34 +135,33 @@ namespace Kokowolo.Pathfinding
                 foreach (Node neighbor in neighbors)
                 {
                     // check if the neighbors are valid nodes to search
-                    if (IsValidMoveBetweenNodes(pathfinder, current, neighbor))
+                    if (!IsValidMoveBetweenNodes(pathfinder, current, neighbor)) continue;
+                    
+                    // if they are valid, calculate distance and add them to the queue
+                    int moveCost = pathfinder.GetMoveCostBetweenNodes(current, neighbor);
+
+                    // distance is calculated from move cost
+                    int distance = current.Distance + moveCost;
+
+                    // adding a new node that hasn't been updated
+                    if (neighbor.SearchPhase < SearchFrontierPhase)
                     {
-                        // if they are valid, calculate distance and add them to the queue
-                        int moveCost = pathfinder.GetMoveCostBetweenNodes(current, neighbor);
-
-                        // distance is calculated from move cost
-                        int distance = current.Distance + moveCost;
-
-                        // adding a new node that hasn't been updated
-                        if (neighbor.SearchPhase < SearchFrontierPhase)
+                        if (distance <= maxDistance)
                         {
-                            if (distance <= maxDistance)
-                            {
-                                SetNode(node: neighbor, searchPhase: SearchFrontierPhase, distance, pathFrom: current);
-                                
-                                // 3.3 Admissible Heuristic https://catlikecoding.com/unity/tutorials/hex-map/part-16/
-                                if (end == null) neighbor.SearchHeuristic = 0; // searches everything
-                                else neighbor.SearchHeuristic = pathfinder.GetDistanceBetweenNodes(neighbor, end);
-                                
-                                searchFrontier.Enqueue(neighbor);
-                            }
+                            SetNode(node: neighbor, searchPhase: SearchFrontierPhase, distance, pathFrom: current);
+                            
+                            // 3.3 Admissible Heuristic https://catlikecoding.com/unity/tutorials/hex-map/part-16/
+                            if (end == null) neighbor.SearchHeuristic = 0; // searches everything
+                            else neighbor.SearchHeuristic = pathfinder.GetHeuristicCostBetweenNodes(neighbor, end);
+                            
+                            searchFrontier.Enqueue(neighbor);
                         }
-                        else if (distance < neighbor.Distance) // adjusting node that's already in queue
-                        {
-                            int oldPriority = neighbor.SearchPriority;
-                            SetNode(node: neighbor, neighbor.SearchPhase, distance, pathFrom: current);
-                            searchFrontier.Change(neighbor, oldPriority);
-                        }
+                    }
+                    else if (distance < neighbor.Distance) // adjusting node that's already in queue
+                    {
+                        int oldPriority = neighbor.SearchPriority;
+                        SetNode(node: neighbor, neighbor.SearchPhase, distance, pathFrom: current);
+                        searchFrontier.Change(neighbor, oldPriority);
                     }
                 }
             }
