@@ -49,9 +49,10 @@ namespace Kokowolo.Pathfinding
             transform.localScale *= scale;
         }
 
-        public void Refresh(Vector3 position, int searchFrontierPhase)
+        public void Refresh(Vector3 position, Quaternion rotation, int searchFrontierPhase)
         {
             transform.position = position;
+            transform.rotation = rotation;
             gameObject.SetActive(Node.IsExplorable);
             
             SetTextColor(GetPathfindingColor(searchFrontierPhase));        
