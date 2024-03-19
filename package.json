@@ -1,13 +1,11 @@
 {
   "name": "com.kokowolo.pathfinding",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "displayName": "Kokowolo Pathfinding",
   "description": "Pathfinding seen throughout Kokowolo Projects",
   "unity": "2019.1",
   "unityRelease": "0b5",
   "changelogUrl": "https://github.com/Kokowolo/Package-Pathfinding/blob/main/CHANGELOG.md",
-  "dependencies": {
-  },
   "keywords": [
     "Pathfinding"
   ],
