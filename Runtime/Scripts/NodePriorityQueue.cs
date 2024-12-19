@@ -11,7 +11,7 @@
  *      https://catlikecoding.com/unity/tutorials/hex-map/ within Catlike Coding's tutorial series:
  *      Hex Map; this file has been updated it to better fit this project
  *
- *		File Line Length: 120
+ *		File Line Length: 140
  */
 
 using System.Collections.Generic;

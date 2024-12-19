@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.16] - 2024-12-20
+### Added
+* `NodeT.cs` to serve as an object wrapper for (the now abstract) `Node`
+* `INode` and `INode<T>` to ease implementation of `Pathfinding` package
+### Changed
+* `Node` is now an abstract class
+* `IPathfinding` has some default implementations
+* `Node.HasNeighbor` to simply call `Contains()`
+* start of C# script headers to mention 140 characters rather than 120
+### Removed
+* `Node.GetNeighbors<T>`, `Node.ToString`, and `Node.Instance`
+
 ## [0.0.15] - 2024-03-19
 ### Removed
 * `Editor` assembly definition file to remove warning

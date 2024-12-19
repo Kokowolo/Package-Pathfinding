@@ -6,7 +6,7 @@
  * Date Created: August 25, 2022
  * 
  * Additional Comments:
- *		File Line Length: 120
+ *		File Line Length: 140
  */
 
 using System.Collections;
@@ -19,7 +19,7 @@ using Kokowolo.Utilities;
 namespace Kokowolo.Pathfinding
 {
     [Serializable]
-    public class Node
+    public abstract class Node //: INode // TODO: make NodePath and AStarPathfinding use INode instead of Node; see first property
     {
         /************************************************************/
         #region Fields
@@ -30,10 +30,10 @@ namespace Kokowolo.Pathfinding
         /************************************************************/
         #region Properties
 
-        public object Instance { get; private set; }
+        // Node INode.Node => this; 
 
         /// <summary>
-        /// can this node be explored (visited)
+        /// can this node be explored (this is essentially visited if no fog of war)
         /// </summary>
         public bool IsExplorable { get; set; } = true;
 
@@ -81,29 +81,29 @@ namespace Kokowolo.Pathfinding
         /************************************************************/
         #region Functions
 
-        public Node(object instance)
-        { 
-            Instance = instance;
-            neighbors = ListPool.Get<Node>();
-        }
+        // public Node(object instance)
+        // { 
+        //     Instance = instance;
+        //     neighbors = ListPool.Get<Node>();
+        // }
 
         // HACK: this is so PathfindingVisual can create duplicate nodes with independent Distance values; can this be cleaned up?
-        public Node(Node node)
-        {
-            Instance = node.Instance;
-            neighbors = ListPool.Get<Node>(node.neighbors);
-            IsExplorable = node.IsExplorable;
-            Distance = node.Distance;
-            SearchHeuristic = node.SearchHeuristic;
-            PathFrom = node.PathFrom;
-            NextWithSamePriority = node.NextWithSamePriority;
-            SearchPhase = node.SearchPhase;
-        }
+        // public Node(Node node)
+        // {
+        //     Instance = node.Instance;
+        //     neighbors = ListPool.Get<Node>(node.neighbors);
+        //     IsExplorable = node.IsExplorable;
+        //     Distance = node.Distance;
+        //     SearchHeuristic = node.SearchHeuristic;
+        //     PathFrom = node.PathFrom;
+        //     NextWithSamePriority = node.NextWithSamePriority;
+        //     SearchPhase = node.SearchPhase;
+        // }
 
-        ~Node()
-        {
-            ListPool.Add(neighbors);
-        }
+        // ~Node()
+        // {
+        //     ListPool.Add(neighbors);
+        // }
 
         public void ClearNeighbors()
         {
@@ -129,18 +129,6 @@ namespace Kokowolo.Pathfinding
             return nodes;
         }
 
-        public List<T> GetNeighbors<T>(bool ensureIsExplorable = true)
-        {
-            List<T> nodes = ListPool.Get<T>();
-            foreach (Node neighbor in neighbors)
-            {
-                if (neighbor == null) continue;
-                if (ensureIsExplorable && !neighbor.IsExplorable) continue;
-                nodes.Add((T)neighbor.Instance);
-            }
-            return nodes;
-        }
-
         public bool HasNeighbor(int index)
         {
             if (neighbors.Count <= index) return false;
@@ -149,11 +137,7 @@ namespace Kokowolo.Pathfinding
 
         public bool HasNeighbor(Node node)
         {
-            foreach (Node neighbor in neighbors)
-            {
-                if (node == neighbor) return true;
-            }
-            return false;
+            return neighbors.Contains(node);
         }
 
         public void SetNeighbor(int index, Node node)
@@ -176,11 +160,6 @@ namespace Kokowolo.Pathfinding
                 }
             }
             neighbors.Add(node);
-        }
-
-        public override string ToString()
-        {
-            return $"({Distance}) {Instance}";
         }
 
         #endregion

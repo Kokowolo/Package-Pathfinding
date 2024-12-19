@@ -10,7 +10,7 @@
  *      https://catlikecoding.com/unity/tutorials/hex-map/ within Catlike Coding's tutorial series:
  *      Hex Map; this file has been updated it to better fit this project
  *
- *      File Line Length: 120
+ *      File Line Length: 140
  **/
 
 using System.Collections;
@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using System;
-using Kokowolo.Utilities;
 
 namespace Kokowolo.Pathfinding
 {
@@ -69,7 +68,7 @@ namespace Kokowolo.Pathfinding
             }
             else if (!pathfinder.CanCreatePathsWithRepeatNodes && path.Contains(target))
             {
-                // FIXME: no option exists that allows for a unit to go back and forth on two nodes because the Penultimate is removed
+                // FIXME: no option exists that allows for a path to go back and forth on two nodes because the Penultimate is removed
                 return false; 
             }
             else if (pathfinder.IsValidMoveBetweenNodes(path.End, target))
