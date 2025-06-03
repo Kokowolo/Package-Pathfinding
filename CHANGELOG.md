@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.17] - 2025-06-03
+### Changed
+* all file headers and file dividers to match new Kokowolo standards
+### Fixed
+* `Node<T>` and `INode<T>` to assert that generic `T` is an `INode` 
+
 ## [0.0.16] - 2024-12-20
 ### Added
 * `NodeT.cs` to serve as an object wrapper for (the now abstract) `Node`

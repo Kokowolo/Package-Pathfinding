@@ -1,7 +1,4 @@
 /**
- * File Name: Pathfinding.cs
- * Description: 
- * 
  * Authors: Will Lacey
  * Date Created: October 12, 2020
  * 
@@ -10,7 +7,7 @@
  *      https://catlikecoding.com/unity/tutorials/hex-map/ within Catlike Coding's tutorial series:
  *      Hex Map; this file has been updated it to better fit this project
  *
- *      File Line Length: 140
+ *      File Line Length: ~140
  **/
 
 using System.Collections;
@@ -23,11 +20,11 @@ namespace Kokowolo.Pathfinding
 {
     public static class AStarPathfinding
     {
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Events
 
-        public static event EventHandler OnStartSearch;
-        public static event EventHandler<AStarPathfindingEventArgs> OnSetNode;
+        public static event Action OnStartSearch;
+        public static event Action<AStarPathfindingEventArgs> OnSetNode;
 
         public class AStarPathfindingEventArgs
         {
@@ -35,24 +32,24 @@ namespace Kokowolo.Pathfinding
         }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Fields
 
-        private static NodePriorityQueue searchFrontier;
+        static NodePriorityQueue searchFrontier;
         
-        private static NodePath searchPath = new NodePath();
-        private static List<Node> searchedNodes = new List<Node>();
+        static NodePath searchPath = new NodePath();
+        static List<Node> searchedNodes = new List<Node>();
 
-        private static AStarPathfindingEventArgs e = new AStarPathfindingEventArgs();
+        static AStarPathfindingEventArgs args = new AStarPathfindingEventArgs();
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Properties
 
         public static int SearchFrontierPhase { get; private set; }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Functions
 
         public static bool TryAddNodeToPath(IPathfinding pathfinder, Node target, NodePath path)
@@ -101,7 +98,7 @@ namespace Kokowolo.Pathfinding
 
         public static NodePath GetPath(IPathfinding pathfinder, Node start, Node end, int maxDistance = int.MaxValue)
         {
-            OnStartSearch?.Invoke(null, EventArgs.Empty);
+            OnStartSearch?.Invoke();
 
             SearchFrontierPhase += 2; // initialize new search frontier phase
 
@@ -183,18 +180,18 @@ namespace Kokowolo.Pathfinding
             return searchPath;
         }
 
-        private static void SetNode(Node node, int searchPhase, int distance, Node pathFrom)
+        static void SetNode(Node node, int searchPhase, int distance, Node pathFrom)
         {
             node.SearchPhase = searchPhase;
             node.Distance = distance;
             // node.MoveCost = pathFrom != null ? distance - pathFrom.Distance : distance;
             node.PathFrom = pathFrom;
 
-            e.node = node;
-            OnSetNode?.Invoke(null, e);
+            args.node = node;
+            OnSetNode?.Invoke(args);
         }
 
-        private static void SetSearchPath(Node start, Node end)
+        static void SetSearchPath(Node start, Node end)
         {
             searchPath.Clear();
             List<Node> path = new List<Node>();
@@ -204,7 +201,7 @@ namespace Kokowolo.Pathfinding
             searchPath.Copy(path);
         }
 
-        private static bool IsValidMoveBetweenNodes(IPathfinding pathfinder, Node start, Node end)
+        static bool IsValidMoveBetweenNodes(IPathfinding pathfinder, Node start, Node end)
         {
             // invalid if end is null or if the node is already out of the queue
             if (end.SearchPhase > SearchFrontierPhase) return false;
@@ -213,6 +210,6 @@ namespace Kokowolo.Pathfinding
         }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
     }
 }

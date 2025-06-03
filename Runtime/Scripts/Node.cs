@@ -1,7 +1,4 @@
 /*
- * File Name: PathfindingNode.cs
- * Description: This script is for ...
- * 
  * Author(s): Kokowolo, Will Lacey
  * Date Created: August 25, 2022
  * 
@@ -21,13 +18,13 @@ namespace Kokowolo.Pathfinding
     [Serializable]
     public abstract class Node //: INode // TODO: make NodePath and AStarPathfinding use INode instead of Node; see first property
     {
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Fields
 
         [NonSerialized] protected List<Node> neighbors;
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Properties
 
         // Node INode.Node => this; 
@@ -78,7 +75,7 @@ namespace Kokowolo.Pathfinding
         public int SearchPhase { get; set; }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Functions
 
         // public Node(object instance)
@@ -163,6 +160,6 @@ namespace Kokowolo.Pathfinding
         }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
     }
 }

@@ -1,12 +1,9 @@
 /*
- * File Name: GridCellDebugObject.cs
- * Description: This script is for ...
- * 
  * Author(s): Kokowolo, Will Lacey
  * Date Created: August 22, 2022
  * 
  * Additional Comments:
- *		File Line Length: 140
+ *		File Line Length: ~140
  */
 
 using System.Collections;
@@ -20,7 +17,7 @@ namespace Kokowolo.Pathfinding
 {
     public class NodeDebugObject : MonoBehaviour
     {
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Fields
 
         [SerializeField] private TextMeshPro titleText;
@@ -30,13 +27,13 @@ namespace Kokowolo.Pathfinding
         [SerializeField] private TextMeshPro fCostText;
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Properties
 
         public Node Node { get; private set; }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Functions
 
         public void Initialize(Node node, string title, string subtitle,  float scale) 
@@ -101,6 +98,6 @@ namespace Kokowolo.Pathfinding
         }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
     }
 }

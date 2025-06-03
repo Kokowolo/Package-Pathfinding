@@ -1,7 +1,4 @@
 /*
- * File Name: IPathfinding.cs
- * Description: This script is for ...
- * 
  * Author(s): Kokowolo, Will Lacey
  * Date Created: February 14, 2023
  * 
@@ -17,13 +14,13 @@ namespace Kokowolo.Pathfinding
 {
     public interface IPathfinding
     {
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Properties
 
         public bool CanCreatePathsWithRepeatNodes { get; }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Functions
 
         // NOTE: this may change based on pathfinding configuration, i.e. a node's unit using its GetNeighbors() vs what's below
@@ -53,6 +50,6 @@ namespace Kokowolo.Pathfinding
         // internal void OnSearchComplete(PathfindingNodePath path);
         
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
     }
 }

@@ -1,8 +1,4 @@
 /*
- * File Name: PathfindingNodePriorityQueue.cs
- * Description: This script is for containing a Priority Queue data structure that is specifically tailored to the
- *              PathfindingNode object; useful for calculating distances and paths among PathfindingNodes
- * 
  * Author(s): Catlike Coding, Kokowolo, Will Lacey
  * Date Created: September 29, 2020
  * 
@@ -11,16 +7,20 @@
  *      https://catlikecoding.com/unity/tutorials/hex-map/ within Catlike Coding's tutorial series:
  *      Hex Map; this file has been updated it to better fit this project
  *
- *		File Line Length: 140
+ *		File Line Length: ~140
  */
 
 using System.Collections.Generic;
 
 namespace Kokowolo.Pathfinding
 {
+    /// <summary>
+    /// Class for containing a priority queue data-structure that is specifically tailored to the `Pathfinding.Node` object; useful for 
+    /// calculating distances and paths among `Pathfinding.Node`s
+    /// </summary>
     public class NodePriorityQueue
     {
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Fields
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace Kokowolo.Pathfinding
         int minimum = int.MaxValue;
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Properties
 
         /// <summary>
@@ -43,7 +43,7 @@ namespace Kokowolo.Pathfinding
         public int Count { get; private set; }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Functions
 
         /// <summary>
@@ -138,6 +138,6 @@ namespace Kokowolo.Pathfinding
         }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
     }
 }

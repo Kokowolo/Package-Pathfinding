@@ -1,31 +1,27 @@
 /*
- * File Name: NodeT.cs
- * Description: This script is for ...
- * 
  * Author(s): Kokowolo, Will Lacey
  * Date Created: April 17, 2023
  * 
  * Additional Comments:
- *		File Line Length: 140
+ *		File Line Length: ~140
  */
 
-using System.Collections.Generic;
-
 using System;
+using System.Collections.Generic;
 using Kokowolo.Utilities;
 
 namespace Kokowolo.Pathfinding
 {
     [Serializable]
-    public class Node<T> : Node
+    public class Node<T> : Node where T : INode
     {
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Properties
 
         public T Owner { get; private set; }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Functions
 
         public Node(T owner)
@@ -58,6 +54,6 @@ namespace Kokowolo.Pathfinding
         }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
     }
 }

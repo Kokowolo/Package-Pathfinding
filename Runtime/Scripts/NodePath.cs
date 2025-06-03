@@ -1,7 +1,4 @@
 /*
- * File Name: PathfindingNodePath.cs
- * Description: This script is for ...
- * 
  * Author(s): Kokowolo, Will Lacey
  * Date Created: February 13, 2023
  * 
@@ -21,18 +18,14 @@ namespace Kokowolo.Pathfinding
     [Serializable]
     public class NodePath : IEnumerable<Node>
     {
-        /************************************************************/
-        #region Events
-
-        #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Fields
 
         [SerializeField] private List<Node> list;
         [SerializeField] private List<int> distances;
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Properties
 
         public int Length => list.Count;
@@ -51,7 +44,7 @@ namespace Kokowolo.Pathfinding
         }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
         #region Functions
 
         public NodePath()
@@ -146,6 +139,6 @@ namespace Kokowolo.Pathfinding
         }
 
         #endregion
-        /************************************************************/
+        /*██████████████████████████████████████████████████████████*/
     }
 }
