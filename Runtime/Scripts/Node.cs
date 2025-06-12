@@ -3,7 +3,7 @@
  * Date Created: August 25, 2022
  * 
  * Additional Comments:
- *		File Line Length: 140
+ *      File Line Length: 140
  */
 
 using System.Collections;
@@ -28,6 +28,8 @@ namespace Kokowolo.Pathfinding
         #region Properties
 
         // Node INode.Node => this; 
+
+        public int NumberOfNeighbors { get; private set; }
 
         /// <summary>
         /// can this node be explored (this is essentially visited if no fog of war)
@@ -105,6 +107,7 @@ namespace Kokowolo.Pathfinding
         public void ClearNeighbors()
         {
             neighbors.Clear();
+            NumberOfNeighbors = 0;
         }
 
         public Node GetNeighbor(int index, bool ensureIsExplorable = true)
@@ -143,6 +146,7 @@ namespace Kokowolo.Pathfinding
             {
                 neighbors.Add(null);
             }
+            if (neighbors[index] == null) NumberOfNeighbors++;
             neighbors[index] = node;
         }
 
@@ -156,7 +160,24 @@ namespace Kokowolo.Pathfinding
                     return;
                 }
             }
+            NumberOfNeighbors++;
             neighbors.Add(node);
+        }
+
+        public bool RemoveNeighbor(Node node, bool resizeNeighborsList = false)
+        {
+            if (node == null) return false;
+            for (int i = 0; i < neighbors.Count; i++)
+            {
+                if (neighbors[i] == node) 
+                {
+                    NumberOfNeighbors--;
+                    if (resizeNeighborsList) neighbors.RemoveAt(i);
+                    else neighbors[i] = null;
+                    return true;
+                }
+            }
+            return false;
         }
 
         #endregion
