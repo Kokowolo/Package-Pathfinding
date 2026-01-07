@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.19] - 2026-01-07
+### Changed
+* all of `AStarPathfinding` to use `INode` instead of `Node`
+* `NodePath` to `INodePath`
+* `NodePriorityQueue` to `INodePriorityQueue`
+### Removed
+* `Node<T>` and `INode<T>` since `INode` is now the core of pathfinding 
+
 ## [0.0.18] - 2025-06-12
 ### Added
 * property `NumberOfNeighbors` to `Node`

@@ -1,9 +1,10 @@
 /*
+ * Copyright (c) 2026 Kokowolo. All Rights Reserved. 
  * Author(s): Kokowolo, Will Lacey
  * Date Created: August 25, 2022
  * 
  * Additional Comments:
- *      File Line Length: 140
+ *		File Line Length: ~140
  */
 
 using System.Collections;
@@ -16,18 +17,18 @@ using Kokowolo.Utilities;
 namespace Kokowolo.Pathfinding
 {
     [Serializable]
-    public abstract class Node //: INode // TODO: make NodePath and AStarPathfinding use INode instead of Node; see first property
+    public class Node : /*INode,*/ IDisposable
     {
         /*██████████████████████████████████████████████████████████*/
         #region Fields
 
-        [NonSerialized] protected List<Node> neighbors;
+        protected List<INode> neighbors;
 
         #endregion
         /*██████████████████████████████████████████████████████████*/
         #region Properties
 
-        // Node INode.Node => this; 
+        // Node INode.Node => this;
 
         public int NumberOfNeighbors { get; private set; }
 
@@ -47,44 +48,38 @@ namespace Kokowolo.Pathfinding
         public int Distance { get; set; }
 
         /// <summary>
-        /// (H Cost) reference to a tile's optimal/potential distance from a source tile; this value can be used to gauge 
-        /// the possible distance this tile is from the source tile and will return the lowest potential distance cost
+        /// (H Cost) reference to a tile's optimal/potential distance from a source tile; this value can be used to gauge the possible 
+        /// distance this tile is from the source tile and will return the lowest potential distance cost
         /// </summary>
         public int SearchHeuristic { get; set; }
 
         /// <summary>
-        /// (F Cost) reference to a tile's distance priority for when it should be evaluated in the search relative to other 
-        /// tiles; this value is determined by a tile's current distance from the source tile and the search heuristic
+        /// (F Cost) reference to a tile's distance priority for when it should be evaluated in the search relative to other tiles; this 
+        /// value is determined by a tile's current distance from the source tile and the search heuristic
         /// </summary>
         public int SearchPriority => Distance + SearchHeuristic;
 
         /// <summary>
-        /// A reference tracker to a tile's previous neighbor that updated this tile's distance from a source tile; this 
-        /// value can be recursively used to trace the path from a tile to the starting source tile
+        /// A reference tracker to a tile's previous neighbor that updated this tile's distance from a source tile; this value can be 
+        /// recursively used to trace the path from a tile to the starting source tile
         /// </summary>
-        public Node PathFrom { get; set; }
+        public INode PathFrom { get; set; }
 
         /// <summary>
-        /// A reference to a tile's adjacent neighbor in the linked list data structure of the PathfindingNodePriorityQueue 
-        /// object; if this property is null, then the cell has no neighbor in the queue
+        /// A reference to a tile's adjacent neighbor in the linked list data structure of the PathfindingNodePriorityQueue object; if this 
+        /// property is null, then the cell has no neighbor in the queue
         /// </summary>
-        public Node NextWithSamePriority { get; set; }
+        public INode NextWithSamePriority { get; set; }
 
         /// <summary>
-        /// tracker of which phase of the search a tile is in; either not yet in the frontier [0], currently part of the 
-        /// frontier [1], or behind the frontier [2]
+        /// tracker of which phase of the search a tile is in; either not yet in the frontier [0], currently part of the frontier [1], or 
+        /// behind the frontier [2]
         /// </summary>
         public int SearchPhase { get; set; }
 
         #endregion
         /*██████████████████████████████████████████████████████████*/
         #region Functions
-
-        // public Node(object instance)
-        // { 
-        //     Instance = instance;
-        //     neighbors = ListPool.Get<Node>();
-        // }
 
         // HACK: this is so PathfindingVisual can create duplicate nodes with independent Distance values; can this be cleaned up?
         // public Node(Node node)
@@ -99,10 +94,20 @@ namespace Kokowolo.Pathfinding
         //     SearchPhase = node.SearchPhase;
         // }
 
-        // ~Node()
-        // {
-        //     ListPool.Add(neighbors);
-        // }
+        public Node()
+        {
+            neighbors = ListPool.Get<INode>();
+        }
+
+        bool disposed;
+        ~Node() => Dispose();
+        public void Dispose()
+        {
+            if (disposed) return;
+            disposed = true;
+            GC.SuppressFinalize(this);
+            ListPool.Add(neighbors);
+        }
 
         public void ClearNeighbors()
         {
@@ -110,20 +115,20 @@ namespace Kokowolo.Pathfinding
             NumberOfNeighbors = 0;
         }
 
-        public Node GetNeighbor(int index, bool ensureIsExplorable = true)
+        public INode GetNeighbor(int index, bool ensureIsExplorable = true)
         {
             if (neighbors.Count <= index || neighbors[index] == null) return null;
-            if (ensureIsExplorable && !neighbors[index].IsExplorable) return null;
+            if (ensureIsExplorable && !neighbors[index].Node.IsExplorable) return null;
             return neighbors[index];
         }
 
-        public List<Node> GetNeighbors(bool ensureIsExplorable = true)
+        public List<INode> GetNeighbors(bool ensureIsExplorable = true)
         {
-            List<Node> nodes = ListPool.Get<Node>();
-            foreach (Node neighbor in neighbors)
+            List<INode> nodes = ListPool.Get<INode>();
+            foreach (INode neighbor in neighbors)
             {
                 if (neighbor == null) continue;
-                if (ensureIsExplorable && !neighbor.IsExplorable) continue;
+                if (ensureIsExplorable && !neighbor.Node.IsExplorable) continue;
                 nodes.Add(neighbor);
             }
             return nodes;
@@ -135,12 +140,12 @@ namespace Kokowolo.Pathfinding
             return neighbors[index] != null;
         }
 
-        public bool HasNeighbor(Node node)
+        public bool HasNeighbor(INode node)
         {
             return neighbors.Contains(node);
         }
 
-        public void SetNeighbor(int index, Node node)
+        public void SetNeighbor(int index, INode node)
         {
             while (neighbors.Count <= index)
             {
@@ -150,7 +155,7 @@ namespace Kokowolo.Pathfinding
             neighbors[index] = node;
         }
 
-        public void AddNeighbor(Node node)
+        public void AddNeighbor(INode node)
         {
             for (int i = 0; i < neighbors.Count; i++)
             {
@@ -164,7 +169,7 @@ namespace Kokowolo.Pathfinding
             neighbors.Add(node);
         }
 
-        public bool RemoveNeighbor(Node node, bool resizeNeighborsList = false)
+        public bool RemoveNeighbor(INode node, bool resizeNeighborsList = false)
         {
             if (node == null) return false;
             for (int i = 0; i < neighbors.Count; i++)

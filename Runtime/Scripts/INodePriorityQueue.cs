@@ -1,11 +1,11 @@
 /*
+ * Copyright (c) 2026 Kokowolo. All Rights Reserved. 
  * Author(s): Catlike Coding, Kokowolo, Will Lacey
  * Date Created: September 29, 2020
  * 
  * Additional Comments:
- *      The original version of this file can be found here:
- *      https://catlikecoding.com/unity/tutorials/hex-map/ within Catlike Coding's tutorial series:
- *      Hex Map; this file has been updated it to better fit this project
+ *      The original version of this file can be found here: https://catlikecoding.com/unity/tutorials/hex-map/ within 
+ *      Catlike Coding's tutorial series: Hex Map; this file has been updated it to better fit this project
  *
  *		File Line Length: ~140
  */
@@ -18,7 +18,7 @@ namespace Kokowolo.Pathfinding
     /// Class for containing a priority queue data-structure that is specifically tailored to the `Pathfinding.Node` object; useful for 
     /// calculating distances and paths among `Pathfinding.Node`s
     /// </summary>
-    public class NodePriorityQueue
+    public class INodePriorityQueue
     {
         /*██████████████████████████████████████████████████████████*/
         #region Fields
@@ -26,7 +26,7 @@ namespace Kokowolo.Pathfinding
         /// <summary>
         /// core data structure variable
         /// </summary>
-        List<Node> priorityQueue = new List<Node>();
+        List<INode> priorityQueue = new List<INode>();
 
         /// <summary>
         /// value to keep track of the minimum node priority
@@ -47,45 +47,44 @@ namespace Kokowolo.Pathfinding
         #region Functions
 
         /// <summary>
-        /// Adds a node to the priority queue
+        /// Adds an INode to the priority queue
         /// </summary>
-        /// <param name="node">node to add</param>
-        public void Enqueue(Node node)
+        public void Enqueue(INode iNode)
         {
             Count += 1;
-            int priority = node.SearchPriority;
+            int priority = iNode.Node.SearchPriority;
 
             // add null elements into the list until the count matches the node's priority
             while (priority >= priorityQueue.Count) priorityQueue.Add(null);
 
             // this creates a linked list of nodes; the structure of filling the list with empty node and adding a linked 
             // linked list to existing indices looks like this: http://bit.ly/HexPriorityQueue
-            node.NextWithSamePriority = priorityQueue[priority];
+            iNode.Node.NextWithSamePriority = priorityQueue[priority];
 
             // potentially update the minimum
             if (priority < minimum) minimum = priority;
 
             // sets the node to the front of the priority queue
-            priorityQueue[priority] = node;
+            priorityQueue[priority] = iNode;
         }
 
         /// <summary>
         /// Removes the next node in the priority queue
         /// </summary>
         /// <returns>the removed node</returns>
-        public Node Dequeue()
+        public INode Dequeue()
         {
             Count -= 1;
 
             // find the first node that isn't null in the list and return
             while (minimum < priorityQueue.Count)
             {
-                Node node = priorityQueue[minimum];
-                if (node != null)
+                INode iNode = priorityQueue[minimum];
+                if (iNode != null)
                 {
                     // decrement the list at this index by setting the next node to the front of list
-                    priorityQueue[minimum] = node.NextWithSamePriority;
-                    return node;
+                    priorityQueue[minimum] = iNode.Node.NextWithSamePriority;
+                    return iNode;
                 }
             minimum++; // increment the new minimum and find the new lowest priority node
             }
@@ -96,34 +95,34 @@ namespace Kokowolo.Pathfinding
         /// <summary>
         /// Updates an existing node in the queue to its new value given its old value
         /// </summary>
-        /// <param name="node">the node to update</param>
+        /// <param name="iNode">the node to update</param>
         /// <param name="oldPriority">the node's old priority value</param>
-        public void Change(Node node, int oldPriority)
+        public void Change(INode iNode, int oldPriority)
         {
-            Node current = priorityQueue[oldPriority];
-            Node next = current.NextWithSamePriority; // this could be null 
+            INode current = priorityQueue[oldPriority];
+            INode next = current.Node.NextWithSamePriority; // this could be null 
 
             // fix list after removing node logic
-            if (current == node)
+            if (current == iNode)
             {
                 priorityQueue[oldPriority] = next; // decrement the link list at this index
             }
             else
             {
                 // keep searching linked list until 'next' is the node
-                while (next != node)
+                while (next != iNode)
                 {
                     current = next;
-                    next = current.NextWithSamePriority;
+                    next = current.Node.NextWithSamePriority;
                 }
 
                 // 'next' is the node, so we can remove/pop 'next' and set 'current.Next...' to
                 // 'next.Next...'
-                current.NextWithSamePriority = node.NextWithSamePriority;
+                current.Node.NextWithSamePriority = iNode.Node.NextWithSamePriority;
             }
 
             // we've updated the list after removing the node, now let's readd the node...
-            Enqueue(node);
+            Enqueue(iNode);
             Count -= 1; // ...while keeping the count the same
         }
 

@@ -1,9 +1,10 @@
 /*
+ * Copyright (c) 2026 Kokowolo. All Rights Reserved. 
  * Author(s): Kokowolo, Will Lacey
  * Date Created: February 13, 2023
  * 
  * Additional Comments:
- *      File Line Length: 140
+ *		File Line Length: ~140
  */
 
 using System.Collections;
@@ -16,12 +17,12 @@ using Kokowolo.Utilities;
 namespace Kokowolo.Pathfinding
 {
     [Serializable]
-    public class NodePath : IEnumerable<Node>
+    public class INodePath : IEnumerable<INode>
     {
         /*██████████████████████████████████████████████████████████*/
         #region Fields
 
-        [SerializeField] private List<Node> list;
+        [SerializeField] private List<INode> list;
         [SerializeField] private List<int> distances;
 
         #endregion
@@ -31,13 +32,13 @@ namespace Kokowolo.Pathfinding
         public int Length => list.Count;
         public bool IsValid => (Length > 1);
 
-        public Node Start => Length > 0 ? list[0] : null;
-        public Node Penultimate => IsValid ? list[Length - 2] : null;
-        public Node End => Length > 0 ? list[Length - 1] : null;
+        public INode Start => Length > 0 ? list[0] : null;
+        public INode Penultimate => IsValid ? list[Length - 2] : null;
+        public INode End => Length > 0 ? list[Length - 1] : null;
 
         public int Distance { get; private set; }
 
-        public Node this[int i]
+        public INode this[int i]
         {
             get => list[i];
             set => list[i] = value;
@@ -47,13 +48,13 @@ namespace Kokowolo.Pathfinding
         /*██████████████████████████████████████████████████████████*/
         #region Functions
 
-        public NodePath()
+        public INodePath()
         {
-            list = ListPool.Get<Node>();
+            list = ListPool.Get<INode>();
             distances = ListPool.Get<int>();
         }
 
-        ~NodePath()
+        ~INodePath()
         {
             ListPool.Add(list);
             ListPool.Add(distances);
@@ -66,19 +67,19 @@ namespace Kokowolo.Pathfinding
             Distance = 0;
         }
 
-        internal void Copy(List<Node> list)
+        internal void Copy(List<INode> list)
         {
             Clear();
             if (list.Count > 0) Add(list[0], 0);
 
             for (int i = 1; i < list.Count; i++)
             {
-                int distance = list[i].Distance - list[i - 1].Distance;
+                int distance = list[i].Node.Distance - list[i - 1].Node.Distance;
                 Add(list[i], distance);
             }
         }
 
-        public void Copy(NodePath path)
+        public void Copy(INodePath path)
         {
             Clear();
             for (int i = 0; i < path.Length; i++)
@@ -87,7 +88,7 @@ namespace Kokowolo.Pathfinding
             }
         }
 
-        internal void Add(Node node, int distance)
+        internal void Add(INode node, int distance)
         {
             Distance += distance;
             distances.Add(distance);
@@ -101,14 +102,14 @@ namespace Kokowolo.Pathfinding
             list.RemoveAt(index);
         }
 
-        public bool Contains(Node node)
+        public bool Contains(INode node)
         {
             return list.Contains(node);
         }
 
-        public IEnumerator<Node> GetEnumerator()
+        public IEnumerator<INode> GetEnumerator()
         {
-            foreach (Node node in list)
+            foreach (INode node in list)
             {
                 yield return node;
             }
