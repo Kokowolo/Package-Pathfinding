@@ -18,7 +18,7 @@ namespace Kokowolo.Pathfinding
     /// Class for containing a priority queue data-structure that is specifically tailored to the `Pathfinding.Node` object; useful for 
     /// calculating distances and paths among `Pathfinding.Node`s
     /// </summary>
-    public class INodePriorityQueue
+    public class NodePriorityQueue
     {
         /*██████████████████████████████████████████████████████████*/
         #region Fields
@@ -52,14 +52,14 @@ namespace Kokowolo.Pathfinding
         public void Enqueue(INode iNode)
         {
             Count += 1;
-            int priority = iNode.Node.SearchPriority;
+            int priority = iNode.GetSearchPriority();
 
             // add null elements into the list until the count matches the node's priority
             while (priority >= priorityQueue.Count) priorityQueue.Add(null);
 
             // this creates a linked list of nodes; the structure of filling the list with empty node and adding a linked 
             // linked list to existing indices looks like this: http://bit.ly/HexPriorityQueue
-            iNode.Node.NextWithSamePriority = priorityQueue[priority];
+            iNode.NextWithSamePriority = priorityQueue[priority];
 
             // potentially update the minimum
             if (priority < minimum) minimum = priority;
@@ -83,7 +83,7 @@ namespace Kokowolo.Pathfinding
                 if (iNode != null)
                 {
                     // decrement the list at this index by setting the next node to the front of list
-                    priorityQueue[minimum] = iNode.Node.NextWithSamePriority;
+                    priorityQueue[minimum] = iNode.NextWithSamePriority;
                     return iNode;
                 }
             minimum++; // increment the new minimum and find the new lowest priority node
@@ -100,7 +100,7 @@ namespace Kokowolo.Pathfinding
         public void Change(INode iNode, int oldPriority)
         {
             INode current = priorityQueue[oldPriority];
-            INode next = current.Node.NextWithSamePriority; // this could be null 
+            INode next = current.NextWithSamePriority; // this could be null 
 
             // fix list after removing node logic
             if (current == iNode)
@@ -113,12 +113,12 @@ namespace Kokowolo.Pathfinding
                 while (next != iNode)
                 {
                     current = next;
-                    next = current.Node.NextWithSamePriority;
+                    next = current.NextWithSamePriority;
                 }
 
                 // 'next' is the node, so we can remove/pop 'next' and set 'current.Next...' to
                 // 'next.Next...'
-                current.Node.NextWithSamePriority = iNode.Node.NextWithSamePriority;
+                current.NextWithSamePriority = iNode.NextWithSamePriority;
             }
 
             // we've updated the list after removing the node, now let's readd the node...

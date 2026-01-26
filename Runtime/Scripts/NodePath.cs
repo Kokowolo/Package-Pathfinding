@@ -17,13 +17,13 @@ using Kokowolo.Utilities;
 namespace Kokowolo.Pathfinding
 {
     [Serializable]
-    public class INodePath : IEnumerable<INode>
+    public class NodePath : IEnumerable<INode>
     {
         /*██████████████████████████████████████████████████████████*/
         #region Fields
 
-        [SerializeField] private List<INode> list;
-        [SerializeField] private List<int> distances;
+        [SerializeField] List<INode> list;
+        [SerializeField] List<int> distances;
 
         #endregion
         /*██████████████████████████████████████████████████████████*/
@@ -48,13 +48,13 @@ namespace Kokowolo.Pathfinding
         /*██████████████████████████████████████████████████████████*/
         #region Functions
 
-        public INodePath()
+        public NodePath()
         {
             list = ListPool.Get<INode>();
             distances = ListPool.Get<int>();
         }
 
-        ~INodePath()
+        ~NodePath()
         {
             ListPool.Add(list);
             ListPool.Add(distances);
@@ -74,12 +74,12 @@ namespace Kokowolo.Pathfinding
 
             for (int i = 1; i < list.Count; i++)
             {
-                int distance = list[i].Node.Distance - list[i - 1].Node.Distance;
+                int distance = list[i].Distance - list[i - 1].Distance;
                 Add(list[i], distance);
             }
         }
 
-        public void Copy(INodePath path)
+        public void Copy(NodePath path)
         {
             Clear();
             for (int i = 0; i < path.Length; i++)

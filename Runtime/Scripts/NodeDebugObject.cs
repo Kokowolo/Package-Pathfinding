@@ -21,25 +21,25 @@ namespace Kokowolo.Pathfinding
         /*██████████████████████████████████████████████████████████*/
         #region Fields
 
-        [SerializeField] private TextMeshPro titleText;
-        [SerializeField] private TextMeshPro subtitleText;
-        [SerializeField] private TextMeshPro gCostText;
-        [SerializeField] private TextMeshPro hCostText;
-        [SerializeField] private TextMeshPro fCostText;
+        [SerializeField] TextMeshPro titleText;
+        [SerializeField] TextMeshPro subtitleText;
+        [SerializeField] TextMeshPro gCostText;
+        [SerializeField] TextMeshPro hCostText;
+        [SerializeField] TextMeshPro fCostText;
 
         #endregion
         /*██████████████████████████████████████████████████████████*/
         #region Properties
 
-        public Node Node { get; private set; }
+        public INode INode { get; private set; }
 
         #endregion
         /*██████████████████████████████████████████████████████████*/
         #region Functions
 
-        public void Initialize(Node node, string title, string subtitle,  float scale) 
+        public void Initialize(INode iNode, string title, string subtitle,  float scale) 
         {
-            Node = node;
+            INode = iNode;
 
             name = $"Debug Node {title}";
             titleText.text = title;
@@ -51,11 +51,11 @@ namespace Kokowolo.Pathfinding
         {
             transform.position = position;
             transform.rotation = rotation;
-            gameObject.SetActive(Node.IsExplorable);
+            gameObject.SetActive(INode.IsExplorable);
             
             SetTextColor(GetPathfindingColor(searchFrontierPhase));        
         
-            if (Node.SearchPhase < searchFrontierPhase)
+            if (INode.SearchPhase < searchFrontierPhase)
             {
                 gCostText.text = "";
                 hCostText.text = "";
@@ -63,13 +63,13 @@ namespace Kokowolo.Pathfinding
             }
             else
             {
-                gCostText.text = "G:" + Node.Distance.ToString();
-                hCostText.text = "H:" + Node.SearchHeuristic.ToString();
-                fCostText.text = "F:" + Node.SearchPriority.ToString();
+                gCostText.text = "G:" + INode.Distance.ToString();
+                hCostText.text = "H:" + INode.SearchHeuristic.ToString();
+                fCostText.text = "F:" + INode.GetSearchPriority().ToString();
             }
         }
 
-        private void SetTextColor(Color color)
+        void SetTextColor(Color color)
         {
             titleText.color = color;
             subtitleText.color = color;
@@ -78,17 +78,17 @@ namespace Kokowolo.Pathfinding
             fCostText.color = color;
         }
 
-        private Color GetPathfindingColor(int searchFrontierPhase)
+        Color GetPathfindingColor(int searchFrontierPhase)
         {
-            if (!Node.IsVisitable) 
+            if (!INode.IsVisitable) 
             {
                 return Color.red;
             }
-            else if (Node.SearchPhase == searchFrontierPhase)
+            else if (INode.SearchPhase == searchFrontierPhase)
             {
                 return Color.green;
             }
-            else if (Node.SearchPhase > searchFrontierPhase)
+            else if (INode.SearchPhase > searchFrontierPhase)
             {
                 return Color.yellow;
             }

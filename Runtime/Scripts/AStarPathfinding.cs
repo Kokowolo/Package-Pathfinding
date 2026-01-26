@@ -25,9 +25,9 @@ namespace Kokowolo.Pathfinding
         #region Events
 
         public static event Action OnStartSearch;
-        public static event Action<AStarPathfindingEventArgs> OnSetNode;
-
-        public class AStarPathfindingEventArgs
+        // public static event Action OnStopSearch;
+        public static event Action<OnNodeUpdatedEventArgs> OnNodeUpdated;
+        public class OnNodeUpdatedEventArgs
         {
             public INode iNode;
         }
@@ -36,16 +36,21 @@ namespace Kokowolo.Pathfinding
         /*██████████████████████████████████████████████████████████*/
         #region Fields
 
-        static INodePriorityQueue searchFrontier;
+        static NodePriorityQueue searchFrontier;
         
-        static INodePath searchPath = new INodePath();
+        static NodePath searchPath = new NodePath();
         static List<INode> searchedNodes = new List<INode>();
 
-        static AStarPathfindingEventArgs args = new AStarPathfindingEventArgs();
+        static OnNodeUpdatedEventArgs args = new OnNodeUpdatedEventArgs();
 
         #endregion
         /*██████████████████████████████████████████████████████████*/
         #region Properties
+
+        /// <summary>
+        /// The A* pathfinding rules of the current search.
+        /// </summary>
+        public static IPathfinding Pathfinding { get; set; }
 
         public static int SearchFrontierPhase { get; private set; }
 
@@ -53,29 +58,29 @@ namespace Kokowolo.Pathfinding
         /*██████████████████████████████████████████████████████████*/
         #region Functions
 
-        public static bool TryAddNodeToPath(IPathfinding pathfinder, INode target, INodePath path)
+        public static bool TryAddNodeToPath(IPathfinder pathfinder, INode target, NodePath path)
         {
             if (!path.IsValid) return false;
 
-            if (!path.End.Node.HasNeighbor(target)) return false;
+            // if (!path.End.Node.HasNeighbor(target)) return false;
 
             if (path.Penultimate == target)
             {
                 path.RemoveAt(path.Length - 1);
                 return path.IsValid && !pathfinder.IsPathOutsideMovementRange(path);
             }
-            else if (!pathfinder.CanCreatePathsWithRepeatNodes && path.Contains(target))
+            else if (!Pathfinding.CanCreatePathsWithRepeatNodes && path.Contains(target))
             {
                 // FIXME: no option exists that allows for a path to go back and forth on two nodes because the Penultimate is removed
                 return false; 
             }
             else if (pathfinder.IsValidMoveBetweenNodes(path.End, target))
             {
-                // Is Move Cost Too Much?
-                path.Start.Node.PathFrom = path.End.Node.PathFrom; // stores End.PathFrom within Start.PathFrom (currently unused)
-                path.End.Node.PathFrom = path.Penultimate;
+                // Is Distance/MoveCost Too Much?
+                path.Start.PathFrom = path.End.PathFrom; // stores End.PathFrom within Start.PathFrom (currently unused)
+                path.End.PathFrom = path.Penultimate;
                 path.Add(target, pathfinder.GetMoveCostBetweenNodes(path.End, target));
-                path.End.Node.PathFrom = path.Start.Node.PathFrom; // returns original End.PathFrom value
+                path.End.PathFrom = path.Start.PathFrom; // returns original End.PathFrom value
 
                 // Make Sure Path Hasn't Gotten Too Long
                 return !pathfinder.IsPathOutsideMovementRange(path);
@@ -86,7 +91,7 @@ namespace Kokowolo.Pathfinding
             }
         }
 
-        public static bool TryReduceOutsideMovementRangePath(IPathfinding pathfinder, INodePath path)
+        public static bool TryReduceOutsideMovementRangePath(IPathfinder pathfinder, NodePath path)
         {
             bool hasReduced = false;
             while (path.IsValid && pathfinder.IsPathOutsideMovementRange(path))
@@ -97,19 +102,19 @@ namespace Kokowolo.Pathfinding
             return hasReduced;
         }
 
-        public static INodePath GetPath(IPathfinding pathfinder, INode start, INode end, int maxDistance = int.MaxValue)
+        public static NodePath GetPath(IPathfinder pathfinder, INode start, INode end, int maxDistance = int.MaxValue)
         {
             OnStartSearch?.Invoke();
 
             SearchFrontierPhase += 2; // initialize new search frontier phase
 
             // initialize the search priority queue and searched nodes list
-            if (searchFrontier == null) searchFrontier = new INodePriorityQueue();
+            if (searchFrontier == null) searchFrontier = new NodePriorityQueue();
             else searchFrontier.Clear();
             searchedNodes.Clear();
 
             // add the starting node to the queue
-            SetNode(iNode: start, searchPhase: SearchFrontierPhase, distance: 0, pathFrom: null);
+            UpdateNode(iNode: start, searchPhase: SearchFrontierPhase, distance: 0, pathFrom: null);
             searchFrontier.Enqueue(start);
 
             // as long as there is something in the queue, keep searching
@@ -117,7 +122,7 @@ namespace Kokowolo.Pathfinding
             {
                 // pop current node 
                 INode current = searchFrontier.Dequeue();
-                SetNode(current, current.Node.SearchPhase + 1, current.Node.Distance, current.Node.PathFrom);
+                UpdateNode(current, current.SearchPhase + 1, current.Distance, current.PathFrom);
                 searchedNodes.Add(current);
 
                 // check if we've found the target node
@@ -127,9 +132,7 @@ namespace Kokowolo.Pathfinding
                     return searchPath;
                 }
 
-                List<INode> neighbors = pathfinder.GetNeighborsFromNode(current);
-
-                foreach (INode neighbor in neighbors)
+                foreach (INode neighbor in pathfinder.GetNeighborsFromNode(current))
                 {
                     // check if the neighbors are valid nodes to search
                     if (!IsValidMoveBetweenNodes(pathfinder, current, neighbor)) continue;
@@ -138,26 +141,26 @@ namespace Kokowolo.Pathfinding
                     int moveCost = pathfinder.GetMoveCostBetweenNodes(current, neighbor);
 
                     // distance is calculated from move cost
-                    int distance = current.Node.Distance + moveCost;
+                    int distance = current.Distance + moveCost;
 
                     // adding a new node that hasn't been updated
-                    if (neighbor.Node.SearchPhase < SearchFrontierPhase)
+                    if (neighbor.SearchPhase < SearchFrontierPhase)
                     {
                         if (distance <= maxDistance)
                         {
-                            SetNode(iNode: neighbor, searchPhase: SearchFrontierPhase, distance, pathFrom: current);
+                            UpdateNode(iNode: neighbor, searchPhase: SearchFrontierPhase, distance, pathFrom: current);
                             
                             // 3.3 Admissible Heuristic https://catlikecoding.com/unity/tutorials/hex-map/part-16/
-                            if (end == null) neighbor.Node.SearchHeuristic = 0; // searches everything
-                            else neighbor.Node.SearchHeuristic = pathfinder.GetHeuristicCostBetweenNodes(neighbor, end);
+                            if (end == null) neighbor.SearchHeuristic = 0; // searches everything
+                            else neighbor.SearchHeuristic = pathfinder.GetHeuristicCostBetweenNodes(neighbor, end);
                             
                             searchFrontier.Enqueue(neighbor);
                         }
                     }
-                    else if (distance < neighbor.Node.Distance) // adjusting node that's already in queue
+                    else if (distance < neighbor.Distance) // adjusting node that's already in queue
                     {
-                        int oldPriority = neighbor.Node.SearchPriority;
-                        SetNode(iNode: neighbor, neighbor.Node.SearchPhase, distance, pathFrom: current);
+                        int oldPriority = INode.GetSearchPriority(neighbor);
+                        UpdateNode(iNode: neighbor, neighbor.SearchPhase, distance, pathFrom: current);
                         searchFrontier.Change(neighbor, oldPriority);
                     }
                 }
@@ -166,7 +169,7 @@ namespace Kokowolo.Pathfinding
             return searchPath;
         }
 
-        public static List<INode> GetAllSearchedNodes(IPathfinding pathfinder, INode start, int maxDistance)
+        public static List<INode> GetAllSearchedNodes(IPathfinder pathfinder, INode start, int maxDistance)
         {
             GetPath(pathfinder, start, null, maxDistance);
             return searchedNodes;
@@ -175,37 +178,37 @@ namespace Kokowolo.Pathfinding
         /// <summary>
         /// this is to specifically be called after GetAllSearchedNodes to avoid having to search again
         /// </summary>
-        public static INodePath GetPreexistingPath(INode start, INode end)
+        public static NodePath GetPreexistingPath(INode start, INode end)
         {
             SetSearchPath(start, end);
             return searchPath;
         }
 
-        static void SetNode(INode iNode, int searchPhase, int distance, INode pathFrom)
+        static void UpdateNode(INode iNode, int searchPhase, int distance, INode pathFrom)
         {
-            iNode.Node.SearchPhase = searchPhase;
-            iNode.Node.Distance = distance;
+            iNode.SearchPhase = searchPhase;
+            iNode.Distance = distance;
             // node.MoveCost = pathFrom != null ? distance - pathFrom.Distance : distance;
-            iNode.Node.PathFrom = pathFrom;
+            iNode.PathFrom = pathFrom;
 
             args.iNode = iNode;
-            OnSetNode?.Invoke(args);
+            OnNodeUpdated?.Invoke(args);
         }
 
         static void SetSearchPath(INode start, INode end)
         {
             searchPath.Clear();
             List<INode> path = new List<INode>();
-            for (INode iNode = end; iNode != start; iNode = iNode.Node.PathFrom) path.Add(iNode);
+            for (INode iNode = end; iNode != start; iNode = iNode.PathFrom) path.Add(iNode);
             path.Add(start);
             path.Reverse();
             searchPath.Copy(path);
         }
 
-        static bool IsValidMoveBetweenNodes(IPathfinding pathfinder, INode start, INode end)
+        static bool IsValidMoveBetweenNodes(IPathfinder pathfinder, INode start, INode end)
         {
             // invalid if end is null or if the node is already out of the queue
-            if (end.Node.SearchPhase > SearchFrontierPhase) return false;
+            if (end.SearchPhase > SearchFrontierPhase) return false;
 
             return pathfinder.IsValidMoveBetweenNodes(start, end);
         }
