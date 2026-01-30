@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.21] - 2026-01-29
+### Fixed
+* bug where `NodeDebugObject` was updating to the wrong `INode` property
+
 ## [0.0.20] - 2026-01-25
 ### Added
 * `INodeComposition` to have an interface for handling a `Node` object
