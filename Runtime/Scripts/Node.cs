@@ -5,6 +5,8 @@
  * 
  * Additional Comments:
  *		File Line Length: ~140
+ *
+ *      // HACK: this class should be a struct and it should be on the implementation of INode to handle List<INode> neighbors adjacency
  */
 
 using System.Collections;

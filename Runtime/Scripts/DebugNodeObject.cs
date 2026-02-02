@@ -12,11 +12,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using TMPro;
-using UnityEngine.EventSystems;
+using Kokowolo.Utilities;
 
 namespace Kokowolo.Pathfinding
 {
-    public class NodeDebugObject : MonoBehaviour
+    public class DebugNodeObject : MonoBehaviour
     {
         /*██████████████████████████████████████████████████████████*/
         #region Fields
@@ -32,6 +32,11 @@ namespace Kokowolo.Pathfinding
         #region Properties
 
         public INode INode { get; private set; }
+
+        public static Color ColorIsNotExplorable = new Color(1, 0, 0, 0.25f); // red
+        public static Color ColorSearchFrontier = new Color(0, 1, 0, 0.7f); // green
+        public static Color ColorBehindSearchFrontier = new Color(1f, 0.92f, 0.016f, 0.7f); // yellow
+        public static Color ColorUnsearched = new Color(1, 1, 1, 0.25f); // white
 
         #endregion
         /*██████████████████████████████████████████████████████████*/
@@ -69,6 +74,12 @@ namespace Kokowolo.Pathfinding
             }
         }
 
+        public void SetTitleTextColor(Color color)
+        {
+            titleText.color = color;
+            subtitleText.color = color;
+        }
+
         void SetTextColor(Color color)
         {
             titleText.color = color;
@@ -82,19 +93,19 @@ namespace Kokowolo.Pathfinding
         {
             if (!INode.IsExplorable) 
             {
-                return Color.red;
+                return ColorIsNotExplorable;
             }
             else if (INode.SearchPhase == searchFrontierPhase)
             {
-                return Color.green;
+                return ColorSearchFrontier;
             }
             else if (INode.SearchPhase > searchFrontierPhase)
             {
-                return Color.yellow;
+                return ColorBehindSearchFrontier;
             }
             else
             {
-                return Color.white;
+                return ColorUnsearched;
             }
         }
 

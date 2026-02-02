@@ -38,7 +38,6 @@ namespace Kokowolo.Pathfinding
 
         static NodePriorityQueue searchFrontier;
         
-        static NodePath searchPath = new NodePath();
         static List<INode> searchedNodes = new List<INode>();
 
         static OnNodeUpdatedEventArgs args = new OnNodeUpdatedEventArgs();
@@ -53,6 +52,8 @@ namespace Kokowolo.Pathfinding
         public static IPathfinding Pathfinding { get; set; }
 
         public static int SearchFrontierPhase { get; private set; }
+        public static NodePath SearchPath = new NodePath();
+
 
         #endregion
         /*██████████████████████████████████████████████████████████*/
@@ -129,7 +130,7 @@ namespace Kokowolo.Pathfinding
                 if (current == end) 
                 {
                     SetSearchPath(start, end);
-                    return searchPath;
+                    return SearchPath;
                 }
 
                 foreach (INode neighbor in pathfinder.GetNeighborsFromNode(current))
@@ -165,8 +166,8 @@ namespace Kokowolo.Pathfinding
                     }
                 }
             }
-            searchPath.Clear(); // TODO: break when found and clear this at the beginning
-            return searchPath;
+            SearchPath.Clear(); // TODO: break when found and clear this at the beginning
+            return SearchPath;
         }
 
         public static List<INode> GetAllSearchedNodes(IPathfinder pathfinder, INode start, int maxDistance)
@@ -181,7 +182,7 @@ namespace Kokowolo.Pathfinding
         public static NodePath GetPreexistingPath(INode start, INode end)
         {
             SetSearchPath(start, end);
-            return searchPath;
+            return SearchPath;
         }
 
         static void UpdateNode(INode iNode, int searchPhase, int distance, INode pathFrom)
@@ -197,12 +198,12 @@ namespace Kokowolo.Pathfinding
 
         static void SetSearchPath(INode start, INode end)
         {
-            searchPath.Clear();
+            SearchPath.Clear();
             List<INode> path = new List<INode>();
             for (INode iNode = end; iNode != start; iNode = iNode.PathFrom) path.Add(iNode);
             path.Add(start);
             path.Reverse();
-            searchPath.Copy(path);
+            SearchPath.Copy(path);
         }
 
         static bool IsValidMoveBetweenNodes(IPathfinder pathfinder, INode start, INode end)
