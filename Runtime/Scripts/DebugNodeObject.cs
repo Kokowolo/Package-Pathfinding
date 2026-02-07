@@ -16,16 +16,16 @@ using Kokowolo.Utilities;
 
 namespace Kokowolo.Pathfinding
 {
-    public class DebugNodeObject : MonoBehaviour
+    public class DebugNodeObject : MonoBehaviour, IPoolableMonoBehaviour
     {
         /*██████████████████████████████████████████████████████████*/
         #region Fields
 
-        [SerializeField] TextMeshPro titleText;
-        [SerializeField] TextMeshPro subtitleText;
-        [SerializeField] TextMeshPro gCostText;
-        [SerializeField] TextMeshPro hCostText;
-        [SerializeField] TextMeshPro fCostText;
+        [SerializeField] TextMeshProUGUI titleText;
+        [SerializeField] TextMeshProUGUI subtitleText;
+        [SerializeField] TextMeshProUGUI gCostText;
+        [SerializeField] TextMeshProUGUI hCostText;
+        [SerializeField] TextMeshProUGUI fCostText;
 
         #endregion
         /*██████████████████████████████████████████████████████████*/
@@ -46,7 +46,7 @@ namespace Kokowolo.Pathfinding
         {
             INode = iNode;
 
-            name = $"Debug Node {title}";
+            name = $"DebugNode {title} ({subtitle})";
             titleText.text = title;
             subtitleText.text = subtitle;
             transform.localScale *= scale;
@@ -107,6 +107,11 @@ namespace Kokowolo.Pathfinding
             {
                 return ColorUnsearched;
             }
+        }
+
+        void IPoolable.OnAddedToPool()
+        {
+            gameObject.SetActive(false);
         }
 
         #endregion
