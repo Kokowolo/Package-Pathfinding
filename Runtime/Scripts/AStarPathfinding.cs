@@ -11,11 +11,10 @@
  */
 
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-using System;
 
 namespace Kokowolo.Pathfinding
 {
@@ -54,12 +53,11 @@ namespace Kokowolo.Pathfinding
         public static int SearchFrontierPhase { get; private set; }
         public static NodePath SearchPath = new NodePath();
 
-
         #endregion
         /*██████████████████████████████████████████████████████████*/
         #region Functions
 
-        public static bool TryAddNodeToPath(IPathfinder pathfinder, INode target, NodePath path)
+        public static bool TryAddNodeToPath(IPathfinder pathfinder, INode target, NodePath path, int maxDistance = int.MaxValue)
         {
             if (!path.IsValid) return false;
 
@@ -68,23 +66,23 @@ namespace Kokowolo.Pathfinding
             if (path.Penultimate == target)
             {
                 path.RemoveAt(path.Length - 1);
-                return path.IsValid && !pathfinder.IsPathOutsideMovementRange(path);
+                return path.IsValid && path.Length < maxDistance;
             }
             else if (!Pathfinding.CanCreatePathsWithRepeatNodes && path.Contains(target))
             {
                 // FIXME: no option exists that allows for a path to go back and forth on two nodes because the Penultimate is removed
                 return false; 
             }
-            else if (pathfinder.IsValidMoveBetweenNodes(path.End, target))
+            else if (pathfinder.IsValidMove(path.End, target))
             {
                 // Is Distance/MoveCost Too Much?
                 path.Start.PathFrom = path.End.PathFrom; // stores End.PathFrom within Start.PathFrom (currently unused)
                 path.End.PathFrom = path.Penultimate;
-                path.Add(target, pathfinder.GetMoveCostBetweenNodes(path.End, target));
+                path.Add(target, pathfinder.GetMoveCost(path.End, target));
                 path.End.PathFrom = path.Start.PathFrom; // returns original End.PathFrom value
 
                 // Make Sure Path Hasn't Gotten Too Long
-                return !pathfinder.IsPathOutsideMovementRange(path);
+                return path.Length < maxDistance;
             }
             else
             {
@@ -92,16 +90,16 @@ namespace Kokowolo.Pathfinding
             }
         }
 
-        public static bool TryReduceOutsideMovementRangePath(IPathfinder pathfinder, NodePath path)
-        {
-            bool hasReduced = false;
-            while (path.IsValid && pathfinder.IsPathOutsideMovementRange(path))
-            {
-                path.RemoveAt(path.Length - 1);
-                hasReduced = true;
-            }
-            return hasReduced;
-        }
+        // public static bool TryReduceOutsideMovementRangePath(IPathfinder pathfinder, NodePath path)
+        // {
+        //     bool hasReduced = false;
+        //     while (path.IsValid && pathfinder.IsPathOutsideMovementRange(path))
+        //     {
+        //         path.RemoveAt(path.Length - 1);
+        //         hasReduced = true;
+        //     }
+        //     return hasReduced;
+        // }
 
         public static NodePath GetPath(IPathfinder pathfinder, INode start, INode end, int maxDistance = int.MaxValue)
         {
@@ -133,13 +131,13 @@ namespace Kokowolo.Pathfinding
                     return SearchPath;
                 }
 
-                foreach (INode neighbor in pathfinder.GetNeighborsFromNode(current))
+                foreach (INode neighbor in pathfinder.GetNeighborsFrom(current))
                 {
                     // check if the neighbors are valid nodes to search
                     if (!IsValidMoveBetweenNodes(pathfinder, current, neighbor)) continue;
                     
                     // if they are valid, calculate distance and add them to the queue
-                    int moveCost = pathfinder.GetMoveCostBetweenNodes(current, neighbor);
+                    int moveCost = pathfinder.GetMoveCost(current, neighbor);
 
                     // distance is calculated from move cost
                     int distance = current.Distance + moveCost;
@@ -153,7 +151,7 @@ namespace Kokowolo.Pathfinding
                             
                             // 3.3 Admissible Heuristic https://catlikecoding.com/unity/tutorials/hex-map/part-16/
                             if (end == null) neighbor.SearchHeuristic = 0; // searches everything
-                            else neighbor.SearchHeuristic = pathfinder.GetHeuristicCostBetweenNodes(neighbor, end);
+                            else neighbor.SearchHeuristic = pathfinder.GetHeuristicCost(neighbor, end);
                             
                             searchFrontier.Enqueue(neighbor);
                         }
@@ -211,7 +209,7 @@ namespace Kokowolo.Pathfinding
             // invalid if end is null or if the node is already out of the queue
             if (end.SearchPhase > SearchFrontierPhase) return false;
 
-            return pathfinder.IsValidMoveBetweenNodes(start, end);
+            return pathfinder.IsValidMove(start, end);
         }
 
         #endregion

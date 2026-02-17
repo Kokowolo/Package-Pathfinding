@@ -17,7 +17,7 @@ using Kokowolo.Utilities;
 namespace Kokowolo.Pathfinding
 {
     [Serializable]
-    public class NodePath : IEnumerable<INode>
+    public class NodePath : IEnumerable<INode>, IDisposable
     {
         /*██████████████████████████████████████████████████████████*/
         #region Fields
@@ -30,7 +30,7 @@ namespace Kokowolo.Pathfinding
         #region Properties
 
         public int Length => list.Count;
-        public bool IsValid => (Length > 1);
+        public bool IsValid => Length > 1;
 
         public INode Start => Length > 0 ? list[0] : null;
         public INode Penultimate => IsValid ? list[Length - 2] : null;
@@ -54,8 +54,13 @@ namespace Kokowolo.Pathfinding
             distances = ListPool.Get<int>();
         }
 
-        ~NodePath()
+        bool disposed;
+        ~NodePath() => Dispose();
+        public void Dispose()
         {
+            if (disposed) return;
+            disposed = true;
+            GC.SuppressFinalize(this);
             ListPool.Add(list);
             ListPool.Add(distances);
         }
